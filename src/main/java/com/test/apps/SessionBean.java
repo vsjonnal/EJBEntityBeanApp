@@ -15,6 +15,8 @@ import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 import weblogic.ejb.container.EJBLogger;
 import weblogic.ejb20.locks.LockTimedOutException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  *
@@ -26,8 +28,8 @@ public class SessionBean implements SessionBeanRemote {
     Context ctx;
     String jndiName="TraderHome";
 
-    public SessionBean() throws NamingException {
-        this.ctx = getContext("system", "gumby1234", "t3://100.111.143.183:9001");
+    public SessionBean() throws NamingException, UnknownHostException {
+        this.ctx = getContext("system", "gumby1234");
     }
 
     public void createEntity(String pk) {
@@ -116,8 +118,14 @@ public class SessionBean implements SessionBeanRemote {
         return trader;
     }
     
-    private Context getContext(String userName, String password, String serverURL) throws NamingException {
+    private Context getContext(String userName, String password) throws NamingException, UnknownHostException {
         Hashtable<String, String> h = new Hashtable<>();
+        
+        InetAddress IP=InetAddress.getLocalHost();
+        System.out.println("IP of my system is := "+IP.getHostAddress());
+        String serverURL = "t3://"+IP.getHostAddress()+":9001";
+        System.out.println("ServerURL is from Entity Bean App := "+serverURL);
+        
         h.put(Context.INITIAL_CONTEXT_FACTORY, "weblogic.jndi.WLInitialContextFactory");
         h.put(Context.PROVIDER_URL, serverURL);
         h.put(Context.SECURITY_PRINCIPAL, userName);
